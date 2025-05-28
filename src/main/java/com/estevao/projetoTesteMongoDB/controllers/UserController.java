@@ -1,14 +1,15 @@
 package com.estevao.projetoTesteMongoDB.controllers;
 
+import com.estevao.projetoTesteMongoDB.models.dto.PostDTO;
 import com.estevao.projetoTesteMongoDB.models.dto.UserDTO;
 import com.estevao.projetoTesteMongoDB.service.UserServide;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -27,5 +28,32 @@ public class UserController {
     public ResponseEntity<UserDTO> findUserById(@PathVariable String id){
         UserDTO dto = userServide.findById(id);
         return ResponseEntity.ok().body(dto);
+    }
+    @PostMapping
+    public ResponseEntity<UserDTO> save(@RequestBody UserDTO dto){
+        dto = userServide.insertUser(dto);
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(dto.getId())
+                .toUri();
+        return ResponseEntity.created(uri).body(dto);
+    }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<UserDTO> update(@PathVariable String id, @RequestBody UserDTO dto){
+        dto = userServide.update(id,dto);
+        return ResponseEntity.ok(dto);
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<UserDTO> delete(@PathVariable String id){
+        userServide.remove(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping(value = "/{id}/posts")
+    public ResponseEntity<List<PostDTO>> getPosts(@PathVariable String id){
+        return ResponseEntity.ok(userServide.getPostsByUser(id));
     }
 }

@@ -1,5 +1,6 @@
 package com.estevao.projetoTesteMongoDB.service;
 
+import com.estevao.projetoTesteMongoDB.models.dto.PostDTO;
 import com.estevao.projetoTesteMongoDB.models.dto.UserDTO;
 import com.estevao.projetoTesteMongoDB.models.entities.User;
 import com.estevao.projetoTesteMongoDB.repository.UserRepository;
@@ -24,12 +25,44 @@ public class UserServide {
     }
 
     public UserDTO findById(String id){
-        Optional<User> optionalUser = userRepository.findById(id);
-        User u = optionalUser.orElseThrow(
-                ()-> new NotFoundUserException("Not found User!")
-        );
+        User u = checkUserExist(id);
         return new UserDTO(u);
 
     }
 
+    public UserDTO insertUser(UserDTO dto){
+        User u = new User();
+        u.setEmail(dto.getEmail());
+        u.setName(dto.getName());
+        u = userRepository.insert(u);
+        return new UserDTO(u);
+    }
+
+    public UserDTO update(String id, UserDTO dto){
+        User u = checkUserExist(id);
+        u.setName(dto.getName());
+        u.setEmail(dto.getEmail());
+        u= userRepository.save(u);
+        return new UserDTO(u);
+    }
+
+    public void remove(String id){
+        User u = checkUserExist(id);
+        userRepository.delete(u);
+    }
+    public List<PostDTO> getPostsByUser(String id){
+        User u = checkUserExist(id);
+        return u.getPosts()
+                .stream()
+                .map(PostDTO::new)
+                .toList();
+    }
+
+    private User checkUserExist(String id){
+        Optional<User> optionalUser = userRepository.findById(id);
+        User u = optionalUser.orElseThrow(
+                ()-> new NotFoundUserException("Not found User!")
+        );
+        return u;
+    }
 }
