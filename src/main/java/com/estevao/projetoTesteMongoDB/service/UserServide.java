@@ -4,7 +4,7 @@ import com.estevao.projetoTesteMongoDB.models.dto.PostDTO;
 import com.estevao.projetoTesteMongoDB.models.dto.UserDTO;
 import com.estevao.projetoTesteMongoDB.models.entities.User;
 import com.estevao.projetoTesteMongoDB.repository.UserRepository;
-import com.estevao.projetoTesteMongoDB.service.exception.NotFoundUserException;
+import com.estevao.projetoTesteMongoDB.service.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -61,7 +61,7 @@ public class UserServide {
     private User checkUserExist(String id){
         Optional<User> optionalUser = userRepository.findById(id);
         User u = optionalUser.orElseThrow(
-                ()-> new NotFoundUserException("Not found User!")
+                ()-> new NotFoundException("Not found User!")
         );
         return u;
     }
